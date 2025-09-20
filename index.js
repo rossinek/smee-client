@@ -31,6 +31,8 @@ class SmeeClient {
         const body = data.rawBody;
         delete data.rawBody;
         delete data.body;
+        const requestId = data.requestId;
+        const responseUrl = data.responseUrl;
         const headers = {};
         Object.keys(data).forEach((key) => {
             headers[key] = data[key];
@@ -49,7 +51,19 @@ class SmeeClient {
                 headers,
                 dispatcher: proxyAgent,
             });
-            this.#logger.info(`POST ${response.url} - ${response.status}`);
+            const replyResponse = await globalThis.fetch(responseUrl, {
+                method: "POST",
+                body: JSON.stringify({
+                    requestId,
+                    status: response.status,
+                    headers: response.headers,
+                    body: response.body,
+                }),
+                headers: {
+                    "content-type": "application/json",
+                },
+            });
+            this.#logger.info(`POST ${response.url} - ${response.status} - ${replyResponse.status}`);
         }
         catch (err) {
             this.#logger.error(err);
