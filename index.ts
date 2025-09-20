@@ -51,7 +51,8 @@ class SmeeClient {
 
     delete data.query;
 
-    const body = JSON.stringify(data.body);
+    const body = data.rawBody;
+    delete data.rawBody;
     delete data.body;
 
     const headers: { [key: string]: any } = {};
