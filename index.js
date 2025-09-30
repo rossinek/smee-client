@@ -51,19 +51,21 @@ class SmeeClient {
                 headers,
                 dispatcher: proxyAgent,
             });
+            const replyBody = JSON.stringify({
+                requestId,
+                status: response.status,
+                headers: response.headers,
+                body: response.body,
+            })
+            this.#logger.info(`Responding to ${responseUrl} with status ${response.status}`);
             const replyResponse = await globalThis.fetch(responseUrl, {
                 method: "POST",
-                body: JSON.stringify({
-                    requestId,
-                    status: response.status,
-                    headers: response.headers,
-                    body: response.body,
-                }),
+                body: replyBody,
                 headers: {
                     "content-type": "application/json",
                 },
             });
-            this.#logger.info(`POST ${response.url} - ${response.status} - ${replyResponse.status}`);
+            this.#logger.info(`POST ${response.url} -> ${response.status} (response delivered with status ${replyResponse.status})`);
         }
         catch (err) {
             this.#logger.error(err);
